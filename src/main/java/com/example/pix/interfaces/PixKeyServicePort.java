@@ -14,5 +14,5 @@ public interface PixKeyServicePort {
     PixKeyResponse create (ClientType clientType, PixKeyRequest request);
     PixKeyResponse update(UUID id, PixKeyUpdateDTO keyUpdateDTO);
     List<PixKeyResponse> getById(UUID id, String nomeCorrentista, PixKeyType tipoChave);
-    PixKeyResponse delete(UUID id);
+
 }

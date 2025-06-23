@@ -184,22 +184,6 @@ public class PixKeyServiceImplTest {
         assertThrows(NotFoundException.class, () -> service.getById(null, "Mayara", PixKeyType.EMAIL));
     }
 
-    @Test
-    void testDeleteSuccess() {
-        when(repository.findById(pixKey.getId())).thenReturn(Optional.of(pixKey));
-
-        PixKeyResponse response = service.delete(pixKey.getId());
-
-        assertEquals(pixKey.getId(), response.getId());
-        verify(repository).delete(pixKey);
-    }
-
-    @Test
-    void testDeleteNotFound() {
-        when(repository.findById(pixKey.getId())).thenReturn(Optional.empty());
-
-        assertThrows(ResponseStatusException.class, () -> service.delete(pixKey.getId()));
-    }
 
     @Test
     void shouldThrowExceptionWhenEmailIsInvalid() {
@@ -290,6 +274,6 @@ public class PixKeyServiceImplTest {
         DomainException ex = assertThrows(DomainException.class, () ->
                 service.create(ClientType.JURIDICA, request));
 
-        assertEquals("Limite de chaves por chavePix excedido", ex.getMessage());
+        assertEquals("Limite de chaves por cadastradas excedido", ex.getMessage());
     }
 }

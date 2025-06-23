@@ -11,9 +11,7 @@ import com.example.pix.exception.NotFoundException;
 import com.example.pix.interfaces.PixKeyServicePort;
 import com.example.pix.repositories.PixKeyRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +21,6 @@ import java.util.UUID;
 public class PixKeyServiceImpl implements PixKeyServicePort {
 
     private final PixKeyRepository repository;
-
 
     @Override
     public PixKeyResponse create(ClientType clientType, PixKeyRequest request) {
@@ -37,11 +34,11 @@ public class PixKeyServiceImpl implements PixKeyServicePort {
 
         Long chavePix = repository.countByNumeroConta(request.numeroConta());
         if (clientType == ClientType.FISICA && chavePix >= 5) {
-            throw new DomainException("Limite de chaves por chavePix excedido");
+            throw new DomainException("Limite de chaves cadastradas excedido");
         }
 
         if (clientType == ClientType.JURIDICA && chavePix >= 20) {
-            throw new DomainException("Limite de chaves por chavePix excedido");
+            throw new DomainException("Limite de chaves por cadastradas excedido");
         }
 
         PixKey pixKey = PixKey.builder()
@@ -94,14 +91,5 @@ public class PixKeyServiceImpl implements PixKeyServicePort {
         return chaves.stream()
                 .map(PixKeyResponse::new)
                 .toList();
-    }
-
-    @Override
-    public PixKeyResponse delete(UUID id) {
-        PixKey pixKey = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chave Pix não encontrada"));
-
-        repository.delete(pixKey);
-        return new PixKeyResponse(pixKey);
     }
 }
