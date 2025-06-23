@@ -29,21 +29,17 @@ public class PixKeyController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PixKeyResponse> update(@PathVariable UUID id, @Valid @RequestBody PixKeyUpdateDTO dto) {
-        return ResponseEntity.ok(servicePort.update(id, dto));
-    }
-
-    @GetMapping()
-    public ResponseEntity <List<PixKeyResponse>> getById(@RequestParam(value = "id", required = false) UUID id,
-                                                         @RequestParam(value = "nomeCorrentista", required = false) String nomeCorrentista,
-                                                         @RequestParam(value = "tipoChave", required = false) PixKeyType tipoChave
-                                                         ) {
-        List<PixKeyResponse> response = servicePort.getById(id, nomeCorrentista, tipoChave);
+        PixKeyResponse response = servicePort.update(id, dto);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<PixKeyResponse> delete(@PathVariable UUID id) {
-        return ResponseEntity.ok(servicePort.delete(id));
+    @GetMapping
+    public ResponseEntity<List<PixKeyResponse>> getById(@RequestParam(value = "id", required = false) UUID id,
+                                                        @RequestParam(value = "nomeCorrentista", required = false) String nomeCorrentista,
+                                                        @RequestParam(value = "tipoChave", required = false) PixKeyType tipoChave
+    ) {
+        List<PixKeyResponse> response = servicePort.getById(id, nomeCorrentista, tipoChave);
+        return ResponseEntity.ok(response);
     }
 }
 
