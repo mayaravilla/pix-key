@@ -5,6 +5,7 @@ import com.example.pix.dto.PixKeyResponse;
 import com.example.pix.dto.PixKeyUpdateDTO;
 import com.example.pix.entities.PixKey;
 import com.example.pix.enums.AccountType;
+import com.example.pix.enums.ClientType;
 import com.example.pix.enums.PixKeyType;
 import com.example.pix.exception.DomainException;
 import com.example.pix.exception.NotFoundException;
@@ -78,7 +79,7 @@ public class PixKeyServiceImplTest {
         when(repository.countByNumeroConta(request.numeroConta())).thenReturn(0L);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        PixKeyResponse response = service.create(request);
+        PixKeyResponse response = service.create(ClientType.FISICA, request);
 
         assertNotNull(response.getId());
         verify(repository).save(any());
@@ -88,7 +89,7 @@ public class PixKeyServiceImplTest {
     void testCreateThrowsExceptionIfChaveExists() {
         when(repository.existsByValorChave(request.valorChave())).thenReturn(true);
 
-        assertThrows(DomainException.class, () -> service.create(request));
+        assertThrows(DomainException.class, () -> service.create(ClientType.FISICA, request));
     }
 
     @Test
@@ -96,7 +97,7 @@ public class PixKeyServiceImplTest {
         when(repository.existsByValorChave(request.valorChave())).thenReturn(false);
         when(repository.countByNumeroConta(request.numeroConta())).thenReturn(5L);
 
-        assertThrows(DomainException.class, () -> service.create(request));
+        assertThrows(DomainException.class, () -> service.create(ClientType.FISICA, request));
     }
 
     @Test
@@ -216,7 +217,7 @@ public class PixKeyServiceImplTest {
         lenient().when(repository.countByNumeroConta(request.numeroConta())).thenReturn(0L);
 
         // Act + Assert
-        DomainException ex = assertThrows(DomainException.class, () -> service.create(request));
+        DomainException ex = assertThrows(DomainException.class, () -> service.create(ClientType.FISICA, request));
         assertEquals("Valor inválido para o tipo de chave: EMAIL", ex.getMessage());
     }
 
@@ -235,7 +236,7 @@ public class PixKeyServiceImplTest {
         lenient().when(repository.existsByValorChave(request.valorChave())).thenReturn(false);
         lenient().when(repository.countByNumeroConta(request.numeroConta())).thenReturn(0L);
 
-        DomainException ex = assertThrows(DomainException.class, () -> service.create(request));
+        DomainException ex = assertThrows(DomainException.class, () -> service.create(ClientType.FISICA, request));
         assertEquals("Valor inválido para o tipo de chave: CPF", ex.getMessage());
     }
 
@@ -254,7 +255,41 @@ public class PixKeyServiceImplTest {
         lenient().when(repository.existsByValorChave(request.valorChave())).thenReturn(false);
         lenient().when(repository.countByNumeroConta(request.numeroConta())).thenReturn(0L);
 
-        DomainException ex = assertThrows(DomainException.class, () -> service.create(request));
+        DomainException ex = assertThrows(DomainException.class, () -> service.create(ClientType.FISICA, request));
         assertEquals("Valor inválido para o tipo de chave: CNPJ", ex.getMessage());
+    }
+
+    @Test
+    void testGetByIdThrowsNotFoundWhenNoFilterProvided() {
+        assertThrows(NotFoundException.class, () -> service.getById(null, null, null));
+    }
+
+    @Test
+    void testGetByIdThrowsDomainExceptionWhenIdAndOtherFiltersProvided() {
+        UUID id = UUID.randomUUID();
+        String nomeCorrentista = "João";
+
+        assertThrows(DomainException.class, () -> service.getById(id, nomeCorrentista, null));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenLimiteExcedidoParaClienteJuridico() {
+        PixKeyRequest request = new PixKeyRequest(
+                PixKeyType.CNPJ,
+                "12345678901234",
+                AccountType.CORRENTE,
+                1234,
+                56789012,
+                "Empresa",
+                "LTDA"
+        );
+
+        when(repository.existsByValorChave(request.valorChave())).thenReturn(false);
+        when(repository.countByNumeroConta(request.numeroConta())).thenReturn(20L);
+
+        DomainException ex = assertThrows(DomainException.class, () ->
+                service.create(ClientType.JURIDICA, request));
+
+        assertEquals("Limite de chaves por chavePix excedido", ex.getMessage());
     }
 }

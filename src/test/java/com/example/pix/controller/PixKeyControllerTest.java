@@ -4,6 +4,7 @@ import com.example.pix.dto.PixKeyRequest;
 import com.example.pix.dto.PixKeyResponse;
 import com.example.pix.dto.PixKeyUpdateDTO;
 import com.example.pix.enums.AccountType;
+import com.example.pix.enums.ClientType;
 import com.example.pix.enums.PixKeyType;
 import com.example.pix.interfaces.PixKeyServicePort;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -66,14 +68,29 @@ public class PixKeyControllerTest {
 
     @Test
     void testCreate() {
-        when(servicePort.create(any())).thenReturn(response);
+            PixKeyRequest request = new PixKeyRequest(
+                    PixKeyType.EMAIL,
+                    "teste@email.com",
+                    AccountType.CORRENTE,
+                    1234,
+                    56789,
+                    "João",
+                    "Silva"
+            );
 
-        ResponseEntity<PixKeyResponse> result = controller.create(request);
+            PixKeyResponse expectedResponse = new PixKeyResponse();
+            when(servicePort.create(ClientType.FISICA, request)).thenReturn(expectedResponse);
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals(id, result.getBody().getId());
+            // Act
+            ResponseEntity<PixKeyResponse> response = controller.create("fisica", request);
 
-        verify(servicePort).create(request);
+            // Assert
+            assertNotNull(response);
+            assertEquals(200, response.getStatusCodeValue());
+            assertEquals(expectedResponse, response.getBody());
+
+            verify(servicePort).create(ClientType.FISICA, request);
+
     }
 
     @Test

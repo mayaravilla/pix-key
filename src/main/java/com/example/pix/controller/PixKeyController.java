@@ -3,6 +3,7 @@ package com.example.pix.controller;
 import com.example.pix.dto.PixKeyRequest;
 import com.example.pix.dto.PixKeyResponse;
 import com.example.pix.dto.PixKeyUpdateDTO;
+import com.example.pix.enums.ClientType;
 import com.example.pix.enums.PixKeyType;
 import com.example.pix.interfaces.PixKeyServicePort;
 import jakarta.validation.Valid;
@@ -21,9 +22,9 @@ public class PixKeyController {
 
     private final PixKeyServicePort servicePort;
 
-    @PostMapping
-    public ResponseEntity<PixKeyResponse> create(@Valid @RequestBody PixKeyRequest dto) {
-        PixKeyResponse response = servicePort.create(dto);
+    @PostMapping("/{clientType}")
+    public ResponseEntity<PixKeyResponse> create(@PathVariable String clientType, @Valid @RequestBody PixKeyRequest dto) {
+        PixKeyResponse response = servicePort.create(ClientType.valueOf(clientType.toUpperCase()), dto);
         return ResponseEntity.ok(response);
     }
 

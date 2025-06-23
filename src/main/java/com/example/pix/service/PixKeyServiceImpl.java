@@ -4,7 +4,7 @@ import com.example.pix.dto.PixKeyRequest;
 import com.example.pix.dto.PixKeyResponse;
 import com.example.pix.dto.PixKeyUpdateDTO;
 import com.example.pix.entities.PixKey;
-import com.example.pix.enums.AccountType;
+import com.example.pix.enums.ClientType;
 import com.example.pix.enums.PixKeyType;
 import com.example.pix.exception.DomainException;
 import com.example.pix.exception.NotFoundException;
@@ -26,7 +26,7 @@ public class PixKeyServiceImpl implements PixKeyServicePort {
 
 
     @Override
-    public PixKeyResponse create(PixKeyRequest request) {
+    public PixKeyResponse create(ClientType clientType, PixKeyRequest request) {
         if (repository.existsByValorChave(request.valorChave())) {
             throw new DomainException("Chave já existente");
         }
@@ -36,7 +36,11 @@ public class PixKeyServiceImpl implements PixKeyServicePort {
         }
 
         Long chavePix = repository.countByNumeroConta(request.numeroConta());
-        if (chavePix >= 5) {
+        if (clientType == ClientType.FISICA && chavePix >= 5) {
+            throw new DomainException("Limite de chaves por chavePix excedido");
+        }
+
+        if (clientType == ClientType.JURIDICA && chavePix >= 20) {
             throw new DomainException("Limite de chaves por chavePix excedido");
         }
 
@@ -60,9 +64,6 @@ public class PixKeyServiceImpl implements PixKeyServicePort {
                 .orElseThrow(() -> new NotFoundException("Chave Pix não encontrada"));
 
         pixKey.setValorChave(dto.valorChave());
-        pixKey.setTipoConta(AccountType.valueOf(String.valueOf(dto.tipoConta())));
-        pixKey.setNumeroAgencia(dto.numeroAgencia());
-        pixKey.setNumeroConta(dto.numeroConta());
         pixKey.setNomeCorrentista(dto.nomeCorrentista());
         pixKey.setSobrenomeCorrentista(dto.sobrenomeCorrentista());
 

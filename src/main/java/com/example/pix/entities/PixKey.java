@@ -1,6 +1,7 @@
 package com.example.pix.entities;
 
 import com.example.pix.enums.AccountType;
+import com.example.pix.enums.ClientType;
 import com.example.pix.enums.PixKeyType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -43,5 +44,5 @@ public class PixKey {
     @CreationTimestamp
     private LocalDateTime dataHoraInclusao;
 
-    private LocalDateTime dataHoraInativacao;
+    private ClientType clientType;
 }
