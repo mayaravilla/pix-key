@@ -59,7 +59,6 @@ public class PixKeyServiceImpl implements PixKeyServicePort {
         PixKey pixKey = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Chave Pix não encontrada"));
 
-        // Atualizar os dados permitidos
         pixKey.setValorChave(dto.valorChave());
         pixKey.setTipoConta(AccountType.valueOf(String.valueOf(dto.tipoConta())));
         pixKey.setNumeroAgencia(dto.numeroAgencia());
@@ -67,10 +66,8 @@ public class PixKeyServiceImpl implements PixKeyServicePort {
         pixKey.setNomeCorrentista(dto.nomeCorrentista());
         pixKey.setSobrenomeCorrentista(dto.sobrenomeCorrentista());
 
-        // Salvar no banco
         PixKey atualizado = repository.save(pixKey);
 
-        // Retornar DTO resposta conforme tabela 2 (dados atualizados)
         return new PixKeyResponse(atualizado);
     }
 
