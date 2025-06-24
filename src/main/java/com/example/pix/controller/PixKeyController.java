@@ -8,6 +8,7 @@ import com.example.pix.enums.PixKeyType;
 import com.example.pix.interfaces.PixKeyServicePort;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class PixKeyController {
     @PostMapping("/{clientType}")
     public ResponseEntity<PixKeyResponse> create(@PathVariable String clientType, @Valid @RequestBody PixKeyRequest dto) {
         PixKeyResponse response = servicePort.create(ClientType.valueOf(clientType.toUpperCase()), dto);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
